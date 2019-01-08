@@ -42,6 +42,22 @@
         @test size(y) == (2, 1)
     end
 
+    @testset "Parametric constants" begin
+        z = Constant([1.0 0.0im; 0.0 1.0])
+        @test z isa Constant{Matrix{Complex{Float64}}}
+
+        # Helper functions
+        @test Convex._size(3) == (1, 1)
+        @test Convex._sign(3) == Positive()
+        @test Convex._size([-1,1,1]) == (3, 1)
+        @test Convex._sign([-1,1,1]) == NoSign()
+        @test Convex._sign([-1,-1,-1]) == Negative()
+        @test Convex._size([0 0; 0 0]) == (2, 2)
+        @test Convex._sign([0 0; 0 0]) == Positive()
+        @test Convex._size(0+1im) == (1, 1)
+        @test Convex._sign(0+1im) == ComplexSign()
+    end
+
     # returns [21]; not sure why
     # context("iteration") do
     #     x = Variable(2,3)
