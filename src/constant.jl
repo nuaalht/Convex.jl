@@ -5,6 +5,7 @@
 export Constant
 export vexity, evaluate, sign, conic_form!
 
+const RealValue = Union{Real,AbstractVecOrMat{<:Real}}
 const ComplexValue = Union{Complex,AbstractVecOrMat{<:Complex}}
 
 ispos(x::Real) = x >= 0
@@ -36,6 +37,23 @@ struct Constant{T<:Value} <: AbstractExpr
     end
 
     Constant(x::Value, check_sign::Bool=true) = Constant(x, check_sign ? _sign(x) : NoSign())
+end
+
+# Allow mismatched signs and values, but check for logical consistency
+
+Constant(x::RealValue, sign::ComplexSign) = Constant(complex(x), sign)
+
+function Constant(x::ComplexValue, sign::S) where S<:Union{Positive,Negative}
+    msg = "Cannot construct $S() constant from "
+    r = real(x)
+    if !iszero(imag(x))
+        throw(ArgumentError(msg * "complex value; use ComplexSign() instead"))
+    elseif S <: Positive && !ispos(r)
+        throw(ArgumentError(msg * "non-positive value"))
+    elseif S <: Negative && !isneg(r)
+        throw(ArgumentError(msg * "non-negative value"))
+    end
+    Constant(r, sign)
 end
 
 #### Constant Definition end     #####

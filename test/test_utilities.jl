@@ -56,6 +56,20 @@
         @test Convex._sign([0 0; 0 0]) == Positive()
         @test Convex._size(0+1im) == (1, 1)
         @test Convex._sign(0+1im) == ComplexSign()
+
+        x = Constant(1, ComplexSign())
+        @test x isa Constant{Complex{Int}}
+        @test evaluate(x) === 1+0im
+        @test sign(x) == ComplexSign()
+
+        y = Constant(0+0im, Positive())
+        @test y isa Constant{Int}
+        @test evaluate(y) === 0
+        @test sign(y) == Positive()
+
+        @test_throws ArgumentError Constant(1+2im, Positive())
+        @test_throws ArgumentError Constant([-1,0], Positive())
+        @test_throws ArgumentError Constant([1,0], Negative())
     end
 
     # returns [21]; not sure why
